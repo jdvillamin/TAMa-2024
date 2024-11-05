@@ -3,7 +3,6 @@
 using namespace std;
 using ll = long long;
 
-// Modular exponentiation: (b^e) % m
 ll power_mod(ll b, ll e, ll m) {
     ll r = 1;
     b %= m;
@@ -17,17 +16,15 @@ ll power_mod(ll b, ll e, ll m) {
     return r;
 }
 
-// Modular multiplication: (a * b) % m
 ll multiply(ll a, ll b, ll m) {
     return ((a % m) * (b % m)) % m;
 }
 
-// Modular addition: (a + b) % m
 ll add(ll a, ll b, ll m) {
     return ((a % m) + (b % m)) % m;
 }
 
-// Compute x^n + x^(n - 1) + ... + 1 using recursion.
+// x^n + x^(n - 1) + ... + 1
 ll sum_power(ll x, ll n, ll m) {
     if (n == 0) return 1;
     ll first_half = sum_power(x, (n - 1) / 2, m);
@@ -40,7 +37,7 @@ ll sum_power(ll x, ll n, ll m) {
     return result_sum;
 }
 
-// Compute x^n + x^(n - 1) * y + ... + x * y^(n - 1) + y^n recursively.
+// x^n + x^(n - 1) * y + ... + x * y^(n - 1) + y^n
 ll sum_power2(ll x, ll y, ll n, ll m) {
     if (n == 0) return 1;
     ll x2 = multiply(x, x, m);
@@ -53,7 +50,6 @@ ll sum_power2(ll x, ll y, ll n, ll m) {
     }
 }
 
-// General sum function 1: Uses sum_power2.
 ll sum_power1_general(ll x, ll y, ll l1, ll l2, ll r1, ll r2, ll m) {
     assert(l1 - r1 == l2 - r2);
     return multiply(
@@ -63,7 +59,6 @@ ll sum_power1_general(ll x, ll y, ll l1, ll l2, ll r1, ll r2, ll m) {
     );
 }
 
-// General sum function 2: Uses sum_power2.
 ll sum_power2_general(ll x, ll y, ll l1, ll l2, ll r1, ll r2, ll m) {
     assert(l2 - r2 == r1 - l1);
     return multiply(
@@ -74,14 +69,9 @@ ll sum_power2_general(ll x, ll y, ll l1, ll l2, ll r1, ll r2, ll m) {
 }
 
 int main() {
-    const ll MOD = 998244353;  // Use a large prime modulus
-    for (ll x = 1; x <= 10; x++)
-	    cout << sum_power(2, x, MOD) << " \n"[x == 10];
-    for (ll x = 1; x <= 10; x++)
-	    cout << sum_power2(2, 3, x, MOD) << " \n"[x == 10];
-    string s;  // Input string representing the digits
+    const ll MOD = 998244353;
+    string s;
 
-    // Read input from the file "string.txt"
     ifstream input_file("string.txt");
     
     if (!input_file) {
@@ -92,25 +82,22 @@ int main() {
     input_file >> s;
     input_file.close();
 
-    cout << s << "\n";
-  
     ll n = s.length() - 1;
     // assert(n == 133232);
     
     ll answer = 0;
 	
-    // Compute the final answer iteratively
     for (int i = 1; i <= n; ++i) {
-        ll d = s[i] - '0';  // Convert character to integer
+        ll d = s[i] - '0';
         
-	// Case: l = 1
+	    // l = 1
         ll lsame1 = multiply(
             multiply(d, power_mod(2, n - i, MOD), MOD),
             power_mod(10, 2 * n - i, MOD),
             MOD
         );
 
-        // Case: l > 1
+        // l > 1
         ll lmore1 = i == 1 ? 0 : multiply(
             d,
             sum_power2_general(2, 10, n - i, 2 * n - (i + 1), n - 2, 2 * n - (2 * i - 1), MOD),
@@ -118,17 +105,16 @@ int main() {
         );
 
         ll original_add = add(lsame1, lmore1, MOD);
-        cout << "Original add: " << original_add << "\n";
-	answer = add(answer, original_add, MOD);
+	    answer = add(answer, original_add, MOD);
 
-        // Case: r = n
+        // r = n
         ll rsamen = multiply(
             multiply(d, power_mod(2, i - 1, MOD), MOD),
             power_mod(10, n - i, MOD),
             MOD
         );
 
-        // Case: r < n
+        // r < n
         ll rlessn = i == n ? 0 : multiply(
             d,
             sum_power1_general(2, 10, n - 2, 2 * n - 2 * i, i - 1, n - i + 1, MOD),
@@ -136,7 +122,6 @@ int main() {
         );
 
         ll duplicate_add = add(rsamen, rlessn, MOD);
-	cout << "Duplicate add: " << duplicate_add << "\n";
         answer = add(answer, duplicate_add, MOD);
     }
 
