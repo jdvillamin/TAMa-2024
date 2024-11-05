@@ -89,8 +89,8 @@ int main() {
 	
     for (int i = 1; i <= n; ++i) {
         ll d = s[i] - '0';
-        
-	    // l = 1
+
+        // l = 1
         ll lsame1 = multiply(
             multiply(d, power_mod(2, n - i, MOD), MOD),
             power_mod(10, 2 * n - i, MOD),
